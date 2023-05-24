@@ -63,7 +63,6 @@ resource "aws_autoscaling_group" "asg" {
 }
 
 ## PLEEASE CHECK THE BLOW METRIC ALARM AND SCALING POLICY <3333
-
 resource "aws_autoscaling_policy" "example_policy" {
   name                   = "terraform-test-policy"
   scaling_adjustment     = 4
@@ -116,5 +115,31 @@ resource "aws_security_group" "example_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+### Load Balancer ADDED HERE
+resource "aws_lb" "example_lb" {
+  name               = "example-lb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.example_sg.id]
+  subnets            = aws_subnet.subnets[*].id
+}
+
+resource "aws_lb_target_group" "example_target_group" {
+  name     = "example-target-group"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.example_vpc.id
+}
+
+resource "aws_lb_listener" "example_listener" {
+  load_balancer_arn = aws_lb.example_lb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.example_target_group.arn
+    type             = "forward"
   }
 }
