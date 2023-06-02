@@ -1,0 +1,28 @@
+stages:
+  - test
+  - lint
+
+test_job:
+  stage: test
+  script:
+    - npm install # Install dependencies
+    - npm run start
+    - npm test # Run tests
+  artifacts:
+    paths:
+      - testreport/
+  only:
+    - merge_requests
+    - main
+
+lint_job:
+  stage: lint
+  script:
+    - npm install # Install dependencies
+    - npm run lint # Run linting
+  artifacts:
+    paths:
+      - lintreport/
+  only:
+    - merge_requests
+    - main

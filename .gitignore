@@ -1,5 +1,5 @@
 node_modules
 backend/*.sqlite
-backend/testreport.html
-backend/lintreport.html
+backend/testreport/*
+backend/lintreport/*
 db/data
