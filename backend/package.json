@@ -7,8 +7,8 @@
     "start": "node server.js",
     "lint": "npx eslint . --ext .js",
     "test": "npx mocha",
-    "lintreport": "npx eslint . --ext .js --format html --output-file lintreport.html",
-    "testreport": "npx mocha --reporter mocha-simple-html-reporter --reporter-options output=testreport.html"
+    "lintreport": "npx eslint . --ext .js --format html --output-file ./lintreport/lintreport.html",
+    "testreport": "npx mocha --reporter mocha-simple-html-reporter --reporter-options output=./testreport/testreport.html"
   },
   "author": "Evert Duipmans <e.f.duipmans@saxion.nl>",
   "license": "ISC",

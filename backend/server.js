@@ -90,7 +90,6 @@ app.get('/search', async (req, res) => {
 });
 
 app.post('/', async (req, res) => {
-  console.log(req.body)
   if (req.body && req.body.fullname && req.body.email && req.body.shortname) {
     try {
       await ShortName.create({
@@ -121,7 +120,6 @@ async function startApplication() {
 
     // Add some sample data if we are in testing mode
     if (NODE_ENV === 'testing') {
-      console.log("in testing mode")
       await ShortName.create({shortname: 'jja01', fullname: 'Jan Jansen', email: 'j.jansen@test.saxion.nl'});
       await ShortName.create({shortname: 'ppe01', fullname: 'Peter Peters', email: 'p.peters@test.saxion.nl'});
     }
