@@ -1,0 +1,50 @@
+---
+- name: Update Amazon Linux
+  hosts: all
+  gather_facts: true
+  become: true
+  
+  tasks:
+    - name: Update package cache
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+      register: update_result
+    
+    - name: Check for updates
+      debug:
+        var: update_result
+        
+    - name: Upgrade packages
+      yum:
+        name: '*'
+        state: latest
+
+
+    - name: Install All Required Apps
+      yum:
+        name:
+          - git
+          - docker
+          - nodejs
+        state: present
+
+    - name: Add non-root user to Docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Start Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+
+    - name: Clone the repo from Git
+      git:
+        repo: https://seb_vdw:glpat-7tus7x_vjdCHwsF2iWsL@gitlab.com/saxion.nl/hbo-ict/2.3-devops/2022-2023/265.git
+        dest: /opt/repo
+
