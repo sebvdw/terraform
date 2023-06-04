@@ -1,0 +1,105 @@
+stages:
+  - test
+  - lint
+  - buildfrontend
+  - buildbackend
+  # - buildnginx
+  # - builddb
+
+
+
+test_job:
+  stage: test
+  image: node:latest
+  before_script:
+  - cd backend/ # Move into the backend directory
+  - apt-get update && apt-get install -y nodejs npm # Install Node.js and npm
+  - npm install -g npm@latest # Update npm to the latest version
+  - mv .test_env .env # Rename .test_env to .env
+  script:
+    - npm install # Install dependencies
+    - npm run start &
+    - sleep 10
+    - npm run testreport # Run tests
+  artifacts:
+    paths:
+      - backend/testreport/
+    expire_in: 30 days  
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID'
+    - if: $CI_COMMIT_BRANCH == 'main'
+
+lint_job:
+  stage: lint
+  image: node:latest
+  before_script:
+  - cd backend/ # Move into the backend directory
+  - apt-get update && apt-get install -y nodejs npm # Install Node.js and npm
+  - npm install -g npm@latest # Update npm to the latest version
+  - mv .test_env .env # Rename .test_env to .env
+  script:
+    - npm install # Install dependencies
+    - npm run lintreport # Run linting
+  artifacts:
+    paths:
+      - backend/lintreport/
+    expire_in: 30 days  
+  rules:
+    - if: '$CI_MERGE_REQUEST_ID'
+    - if: $CI_COMMIT_BRANCH == 'main'
+
+buildfrontend:
+  stage: buildfrontend
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p glpat-hyDzdR4pmrrj7EQTvLty $CI_REGISTRY
+  script:
+    - cd frontend/
+    - docker build -t registry.gitlab.com/saxion.nl/hbo-ict/2.3-devops/2022-2023/265/frontend:latest .
+    - docker push registry.gitlab.com/saxion.nl/hbo-ict/2.3-devops/2022-2023/265/frontend:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'docker/build'
+
+buildbackend:
+  stage: buildbackend
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p glpat-hyDzdR4pmrrj7EQTvLty $CI_REGISTRY
+  script:
+    - cd backend/
+    - docker build -t registry.gitlab.com/saxion.nl/hbo-ict/2.3-devops/2022-2023/265/backend:latest .
+    - docker push registry.gitlab.com/saxion.nl/hbo-ict/2.3-devops/2022-2023/265/backend:latest
+  rules:
+    - if: $CI_COMMIT_BRANCH == 'docker/build'
+
+# buildnginx:
+#   stage: buildnginx
+#   image: docker:latest
+#   services:
+#     - docker:dind
+#   before_script:
+#     - docker login -u $CI_REGISTRY_USER -p glpat-hyDzdR4pmrrj7EQTvLty $CI_REGISTRY
+#   script:
+#     - cd nginx/
+#     - docker build -t registry.gitlab.com/saxion.nl/hbo-ict/2.3-devops/2022-2023/265/nginx:latest .
+#     - docker push registry.gitlab.com/saxion.nl/hbo-ict/2.3-devops/2022-2023/265/nginx:latest
+#   rules:
+#   - if: $CI_COMMIT_BRANCH == 'docker/build'
+
+# builddb:
+#   stage: builddb
+#   image: docker:latest
+#   services:
+#     - docker:dind
+#   before_script:
+#     - docker login -u $CI_REGISTRY_USER -p glpat-hyDzdR4pmrrj7EQTvLty $CI_REGISTRY
+#   script:
+#     - cd db/
+#     - docker build -t registry.gitlab.com/saxion.nl/hbo-ict/2.3-devops/2022-2023/265/db:latest .
+#     - docker push registry.gitlab.com/saxion.nl/hbo-ict/2.3-devops/2022-2023/265/db:latest
+#   rules:
+#     - if: $CI_COMMIT_BRANCH == 'docker/build'
